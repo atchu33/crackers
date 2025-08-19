@@ -256,13 +256,13 @@ heroHeader: {
   sectionTitle: {
     fontSize: '1.5rem',
     fontWeight: '600',
-    color: '#2b6cb0',
+    color: '#C30E59',
     marginBottom: '12px',
   },
   titleDivider: {
     height: '4px',
     width: '80px',
-    backgroundColor: '#4299e1',
+    backgroundColor: '#C30E59',
     margin: '0 auto',
     borderRadius: '2px',
   },
@@ -302,7 +302,7 @@ heroHeader: {
     position: 'absolute',
     top: '16px',
     left: '16px',
-    backgroundColor: '#3182ce',
+    backgroundColor: '#C30E59',
     color: 'white',
     width: '32px',
     height: '32px',
@@ -319,7 +319,7 @@ heroHeader: {
   tipTitle: {
     fontSize: '1.25rem',
     fontWeight: '600',
-    color: '#2b6cb0',
+    color: '#C30E59',
     marginBottom: '12px',
   },
   tipDescription: {
@@ -346,7 +346,7 @@ heroHeader: {
   emergencyTitle: {
     fontSize: '2rem',
     fontWeight: '700',
-   color: '#2b6cb0',
+   color: '#C30E59',
     marginBottom: '12px',
   },
   emergencyList: {
@@ -385,7 +385,7 @@ heroHeader: {
   dontTitle: {
     fontSize: '2rem',
     fontWeight: '700',
-  color: '#2b6cb0',
+  color: '#C30E59',
     marginBottom: '12px',
   },
   dontGrid: {

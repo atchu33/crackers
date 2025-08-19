@@ -8,7 +8,7 @@ import { jsPDF } from "jspdf";
 import localforage from 'localforage';
 import Header from './HeaderLayouts';
 import Footer from './FooterLayouts';
-import quick_image from '../assets/quick_image.jpg';
+import quick_image from '../assets/QO.jpg';
 import API_BASE_URL from "./apiConfig";
  
 function QuickPurchase() {

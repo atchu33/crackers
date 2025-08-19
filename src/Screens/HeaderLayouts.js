@@ -42,11 +42,63 @@ const openPriceListPDF = (e) => {
   }, []);
 
   return (
+    <>
+    <style>
+      {`
+      /* === MOBILE CSS - FIXED & ENHANCED === */
+
+@keyframes gradientShift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+@keyframes bouncePulse {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px) scale(1.05); }
+}
+
+@keyframes pulseGlow {
+  0% { box-shadow: 0 0 12px #ff512f88, 0 0 24px #ff512f44; }
+  50% { box-shadow: 0 0 20px #ff512fcc, 0 0 36px #ff512f88; }
+  100% { box-shadow: 0 0 12px #ff512f88, 0 0 24px #ff512f44; }
+}
+
+/* === MOBILE NAVIGATION === */
+@media (max-width: 768px) {
+  /* ... existing styles ... */
+
+  .nav-list-mobile a[href="/quick-purchase"] {
+    padding: 0.7rem 1.3rem;
+    background: linear-gradient(270deg, #ff9a9e, #ff6a00, #ff9a9e); /* ✅ Fixed: Removed duplicate */
+    background-size: 400% 400%;
+    color: #fff;
+    border-radius: 30px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    border: 2px solid #FF9800;
+    box-shadow: 0 8px 20px rgba(255, 106, 0, 0.5);
+    margin: 1rem 0;
+    animation: gradientShift 6s ease infinite, bouncePulse 2s ease-in-out infinite;
+    display: inline-block;
+    transition: all 0.3s ease;
+  }
+
+  .nav-list-mobile a[href="/quick-purchase"]:hover {
+    animation-play-state: paused;
+    transform: scale(1.1) translateY(-6px);
+    box-shadow: 0 10px 25px rgba(255, 106, 0, 0.7);
+    border-color: #ff512f;
+  }
+}
+      `}
+    </style>
     <header style={headerStyle} className="header-mobile">
       <div style={logoContainerStyle}>
         <img src={logo} style={logoStyle} alt="Sri Gokilaa Crackers" />
         <h2 style={{ margin: "0 0 0 10px", fontSize: "16px", color: "#fff7f7ff" }}>
-          Sri Gokilaa Crackers 
+          Sky Blaze Crackers 
         </h2>
       </div>
 
@@ -90,14 +142,28 @@ const openPriceListPDF = (e) => {
            <li style={navItemStyle}>
             <NavLink to="/safety" onClick={closeMobileMenu}>Safety Tips</NavLink>
           </li>
-          <li style={{ ...navItemStyle, marginTop: '10px' }}>
-            <Link to="/AdminLogin" style={loginnavLinkStyle} onClick={closeMobileMenu}>
-              Login
-            </Link>
-          </li>
+<li style={{ ...navItemStyle, display: 'flex', alignItems: 'center' }}>
+  <Link
+    to="/AdminLogin"
+    style={{
+      ...loginnavLinkStyle,
+      padding: '0.5rem 1rem', // Match navLinkStyle vertical padding
+      margin: 0,
+      height: 'auto',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+    }}
+    onClick={closeMobileMenu}
+  >
+    Login
+  </Link>
+</li>
         </ul>
       </nav>
     </header>
+    </>
+    
   );
 };
 
@@ -120,7 +186,7 @@ const NavLink = ({ to, children, onClick, special }) => {
 };
 // === Styles === 
 const headerStyle = {
-  background: 'rgb(26, 35, 126)',
+  background: '#C30E59',
   padding: '0.5rem 2rem',
   display: 'flex',
   alignItems: 'center',
@@ -131,31 +197,32 @@ const headerStyle = {
   color: '#ffffff',
 };
 
+// Quick Order Button with animated gradient + bounce
 const quickOrderStyle = {
-  padding: '0.5rem 1rem',
-  background: 'linear-gradient(135deg, #ff9800, #f57c00)',
+  padding: '0.6rem 1rem',
+  background: 'linear-gradient(270deg, #ff9a9e, #ff6a00, #ff9a9e)',
+  backgroundSize: '400% 400%',
   color: '#fff',
   textDecoration: 'none',
-  borderRadius: '20px',
-  fontWeight: '600',
- fontSize: '0.9rem',
-  border: '2px solid #ff9800',
-  boxShadow: '0 4px 10px rgba(255, 152, 0, 0.4)',
-  transition: 'none', // Removed transition to prevent conflicts with animation
-  display: 'inline-block',
-  verticalAlign: 'middle',
-  margin: '0',
-  animation: 'quickOrderBlink 2s infinite ease-in-out',
-  animationFillMode: 'forwards',
-}
+  borderRadius: '30px',
+  fontWeight: '700',
+  fontSize: '1rem',
+  border: '2px solid #FF9800',
+  boxShadow: '0 8px 20px rgba(255, 106, 0, 0.5)',
+  display: 'inline-flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  letterSpacing: '0.8px',
+  cursor: 'pointer',
+  transition: 'transform 0.3s ease, box-shadow 0.3s ease',
+  animation: 'gradientShift 6s ease infinite, bouncePulse 2s ease-in-out infinite',
+};
 
 const quickOrderHoverStyle = {
-  // Animation overrides hover, but keep for fallback
-  background: '#ff6e1b',
-  boxShadow: '0 6px 16px rgba(255, 152, 0, 0.6)',
-  transform: 'scale(1.1)', // Slightly bigger on hover
-  animationPlayState: 'paused', // Pause animation on hover to see hover effect
-}
+  background: 'linear-gradient(135deg, #ff6a00, #ff9a9e)',
+  transform: 'scale(1.08)',
+  boxShadow: '0 8px 20px rgba(255, 106, 0, 0.6)',
+};
 
 const logoContainerStyle = {
   display: 'flex',
@@ -177,7 +244,7 @@ const navListStyle = {
   display: 'flex',
   alignItems: 'center',
   listStyle: 'none',
-  gap: '1rem',
+  gap: '0.5rem',
   padding: 0,
   margin: 0,
 };
@@ -201,17 +268,17 @@ const navLinkStyle = {
 };
 
 const loginnavLinkStyle = {
- padding: '0.5rem 1rem',
-  background: 'linear-gradient(135deg, #ff512f, #dd2476)',
-  color: '#fff',
+  padding: '0.6rem 1rem',
+ background: 'linear-gradient(135deg, #ff9a9e, #ff6a00)', // Glassmorphism effect
+  backdropFilter: 'blur(10px)',
+  border: '2px solid rgba(255, 255, 255, 0.3)',
+  color: '#ffffff',
   textDecoration: 'none',
-  borderRadius: '10px',
-  fontWeight: 'bold',
+  borderRadius: '12px',
+  fontWeight: '600',
   fontSize: '1rem',
-  transition: 'all 0.4s ease',
-  boxShadow: '0 0 10px #ff512f88',
-  animation: 'pulseGlow 2s infinite',
-  margin: '10px 0',
+  transition: 'all 0.3s ease',
+  boxShadow: '0 4px 12px rgba(0, 0, 0, 0.25)',
 };
 
 
@@ -240,39 +307,17 @@ const priceListLinkStyle = {
 };
 // Mobile CSS with consistent desktop styling
 const mobileCSS = `
-@keyframes quickOrderBlink {
-  0% {
-    opacity: 0.8;
-    transform: scale(1) translateY(0px);
-    box-shadow: 0 4px 10px rgba(255, 152, 0, 0.4), 0 0 20px rgba(255, 152, 0, 0.3);
-    background: linear-gradient(135deg, #ff9800, #f57c00);
-  }
-  25% {
-    opacity: 1;
-    transform: scale(1.08) translateY(-2px);
-    box-shadow: 0 8px 25px rgba(255, 152, 0, 0.9), 0 0 50px rgba(255, 152, 0, 0.7);
-    background: linear-gradient(135deg, #ffb74d, #ff8f00);
-  }
-  50% {
-    opacity: 0.7;
-    transform: scale(0.98) translateY(1px);
-    box-shadow: 0 3px 8px rgba(255, 152, 0, 0.3), 0 0 15px rgba(255, 152, 0, 0.2);
-    background: linear-gradient(135deg, #ff6f00, #e65100);
-  }
-  75% {
-    opacity: 1;
-    transform: scale(1.05) translateY(-1px);
-    box-shadow: 0 6px 18px rgba(255, 152, 0, 0.7), 0 0 35px rgba(255, 152, 0, 0.5);
-  background: 'linear-gradient(135deg, #ffd54f, #ffb74d)', // Lighter orange shades
+@keyframes gradientShift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
 
-  }
-  100% {
-    opacity: 0.8;
-    transform: scale(1) translateY(0px);
-    box-shadow: 0 4px 10px rgba(255, 152, 0, 0.4), 0 0 20px rgba(255, 152, 0, 0.3);
-    background: 'linear-gradient(135deg, #ffd54f, #ffb74d)', // Lighter orange shades
+@keyframes bouncePulse {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px) scale(1.05); }
+}
 
-  }
 }
 
 @keyframes pulseGlow {
