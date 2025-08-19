@@ -5,7 +5,9 @@ import axios from "axios";
 import localforage from "localforage";
 import API_BASE_URL from "./apiConfig";
 import hero_bg from "../assets/pro_bg.jpg";
-import pro_img from "../assets/firecracker_img.webp";
+import pro_img from "../assets/crack.jpg";
+import bomb from "../assets/bombabt.jpg";
+import celeb from "../assets/celeb.jpg";
 import new_img from  "../assets/fire crackers image2.png";
 import new_img2 from  "../assets/fireworks.png";
 import new_img3 from "../assets/fire racker image4.png";
@@ -33,25 +35,22 @@ import {
     FiShield,
     FiAlertCircle,
     FiBookOpen,
-
-   
-
- 
- 
+    FiEye,
+    FiHeart,
+    FiGift
   } from 'react-icons/fi';
- 
+
 function Home() {
- // State for controlling the popup
- const [showPopup, setShowPopup] = useState(true); 
+  // State for controlling the popup
+  const [showPopup, setShowPopup] = useState(true); 
   const [isVisible, setIsVisible] = useState(false);
   const [isRenderPopup, setIsRenderPopup] = useState(false);
-// const pro_img2 = `${process.env.PUBLIC_URL}/Img/fire_gif.webp`;
 
   // Check on component mount if popup has been shown before
   useEffect(() => {
     const hasSeenPopup = localStorage.getItem('hasSeenPopup');
     if (!hasSeenPopup) {
-      setShowPopup(true); // Show only if not seen before
+      setShowPopup(true);
     }
   }, []);
 
@@ -67,1472 +66,1103 @@ function Home() {
     }
   }, [showPopup]);
 
-  // Close handler - also mark as seen
+  // Close handler
   const handleClose = () => {
     setIsVisible(false);
     setTimeout(() => {
       setShowPopup(false);
-      localStorage.setItem('hasSeenPopup', 'true'); // Remember user saw it
+      localStorage.setItem('hasSeenPopup', 'true');
     }, 300);
   };
-// Add this state at the top of your component with other state declarations
-const [formData, setFormData] = useState({
-  name: '',
-  email: '',
-  phone: '',
-  subject: '',
-  message: '',
-  companyId: 1 // Default company ID as per your requirements
-});
 
-const [isSubmittingContact, setIsSubmittingContact] = useState(false);
-const [submitStatus, setSubmitStatus] = useState(null); // 'success' or 'error'
+  // Contact form state
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    phone: '',
+    subject: '',
+    message: '',
+    companyId: 1
+  });
 
-// Add this handler function
-const handleContactSubmit = async (e) => {
-  e.preventDefault();
-  
-  // Enhanced validation
-  if (!formData.name.trim() || !formData.email.trim() || !formData.message.trim()) {
-    alert('Please fill in all required fields (Name, Email, Message)');
-    return;
-  }
+  const [isSubmittingContact, setIsSubmittingContact] = useState(false);
+  const [submitStatus, setSubmitStatus] = useState(null);
 
-  if (!/^\S+@\S+\.\S+$/.test(formData.email)) {
-    alert('Please enter a valid email address');
-    return;
-  }
-
-  setIsSubmittingContact(true);
-  setSubmitStatus(null);
-
-  try {
-    const token = await localforage.getItem("jwtToken");
-    if (!token) {
-      throw new Error("No authentication token found");
+  // Contact form handler
+  const handleContactSubmit = async (e) => {
+    e.preventDefault();
+    
+    if (!formData.name.trim() || !formData.email.trim() || !formData.message.trim()) {
+      alert('Please fill in all required fields (Name, Email, Message)');
+      return;
     }
 
-    // Prepare FormData
-    const formDataToSend = new FormData();
-    formDataToSend.append('Name', formData.name);
-    formDataToSend.append('Email', formData.email);
-    formDataToSend.append('Phone', formData.phone || ''); // Make optional
-    formDataToSend.append('Subject', formData.subject || 'General Inquiry');
-    formDataToSend.append('Message', formData.message);
-    formDataToSend.append('CompanyId', formData.companyId);
+    if (!/^\S+@\S+\.\S+$/.test(formData.email)) {
+      alert('Please enter a valid email address');
+      return;
+    }
 
-    const response = await axios.post(
-      `${API_BASE_URL}api/Crackers/SendContactEmail`,
-      formDataToSend,
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'multipart/form-data'
-        }
+    setIsSubmittingContact(true);
+    setSubmitStatus(null);
+
+    try {
+      const token = await localforage.getItem("jwtToken");
+      if (!token) {
+        throw new Error("No authentication token found");
       }
-    );
 
-    if (response.data.statusCode === 200) {
-      setSubmitStatus('success');
-      setFormData({
-        name: '',
-        email: '',
-        phone: '',
-        subject: '',
-        message: '',
-        companyId: 1
+      const formDataToSend = new FormData();
+      formDataToSend.append('Name', formData.name);
+      formDataToSend.append('Email', formData.email);
+      formDataToSend.append('Phone', formData.phone || '');
+      formDataToSend.append('Subject', formData.subject || 'General Inquiry');
+      formDataToSend.append('Message', formData.message);
+      formDataToSend.append('CompanyId', formData.companyId);
+
+      const response = await axios.post(
+        `${API_BASE_URL}api/Crackers/SendContactEmail`,
+        formDataToSend,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'multipart/form-data'
+          }
+        }
+      );
+
+      if (response.data.statusCode === 200) {
+        setSubmitStatus('success');
+        setFormData({
+          name: '',
+          email: '',
+          phone: '',
+          subject: '',
+          message: '',
+          companyId: 1
+        });
+        
+        setTimeout(() => {
+          setSubmitStatus(null);
+        }, 1000);
+      } else {
+        throw new Error(response.data.statusDesc || "Failed to send message");
+      }
+    } catch (error) {
+      console.error("Error details:", {
+        message: error.message,
+        response: error.response?.data,
+        config: error.config
       });
-      
-      // Clear success message after 3 seconds
-      setTimeout(() => {
-        setSubmitStatus(null);
-      }, 1000);
-    } else {
-      throw new Error(response.data.statusDesc || "Failed to send message");
+      setSubmitStatus('error');
+      alert(`Failed to send message: ${error.response?.data?.message || error.message}`);
+    } finally {
+      setIsSubmittingContact(false);
     }
-  } catch (error) {
-    console.error("Error details:", {
-      message: error.message,
-      response: error.response?.data,
-      config: error.config
-    });
-    setSubmitStatus('error');
-    alert(`Failed to send message: ${error.response?.data?.message || error.message}`);
-  } finally {
-    setIsSubmittingContact(false);
-  }
-};
-// Update the form input change handler
-const handleInputChange = (e) => {
-  const { name, value } = e.target;
-  setFormData(prev => ({
-    ...prev,
-    [name]: value
-  }));
-};
+  };
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
   return (
     <>
-    <Header />
- {/*
-   {isRenderPopup && (
-        <div style={{
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          backgroundColor: 'rgba(0,0,0,0.7)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          zIndex: 1000,
-          opacity: isVisible ? 1 : 0,
-          transition: 'opacity 0.3s ease',
-          pointerEvents: isVisible ? 'auto' : 'none',
-        }}>
-          <div style={{
-  backgroundColor: '#fff',
-  borderRadius: '12px',
-  width: '90%',
-  maxWidth: '600px',
-  overflow: 'hidden',
-  boxShadow: '0 10px 25px rgba(0,0,0,0.2)',
-  transform: isVisible ? 'scale(1)' : 'scale(0.95)',
-  transition: 'transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)',
-  '@media (max-width: 480px)': {
-    width: '95%',
-    maxHeight: '90vh'
-  }
-}}>
-            
-            <div style={{
-              background: 'linear-gradient(to right, #ff5e62, #ff9966)',
-              color: 'white',
-              padding: '20px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-            }}>
-              <div style={{ 
-                display: 'flex', 
-                alignItems: 'center',
-                gap: '15px'
-              }}>
-                <div style={{
-                  background: 'rgba(255,255,255,0.3)',
-                  borderRadius: '50%',
-                  width: '40px',
-                  height: '40px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  flexShrink: 0,
-                }}>
-                  <FiAlertTriangle size={20} />
+      <Header />
+      
+      {/* Main Hero Section with Side-by-Side Layout */}
+      <section style={mainHeroStyle}>
+        <div style={heroGridContainer}>
+          {/* Left: Text Content */}
+          <div style={heroTextSection}>
+            <div style={heroContentWrapper}>
+              
+              <h1 style={heroMainTitle}>
+                Light Up Your 
+                <span style={heroAccentText}> Celebrations</span>
+              </h1>
+              <p style={heroDescription}>
+                Experience the magic of traditional Indian fireworks with Sky Blaze Crackers. 
+                From intimate family gatherings to grand festivals, we bring color, joy, 
+                and spectacular moments to every celebration.
+              </p>
+              
+              <div style={heroStatsGrid}>
+                <div style={heroStatItem}>
+                  <h3 style={heroStatNumber}>10+</h3>
+                  <p style={heroStatLabel}>Years Experience</p>
                 </div>
-                <h2 style={{ 
-                  margin: 0, 
-                  fontSize: '1.25rem', 
-                  fontWeight: '600',
-                  lineHeight: '1.4'
-                }}>
-                  Important  
-                </h2>
+                <div style={heroStatItem}>
+                  <h3 style={heroStatNumber}>5000+</h3>
+                  <p style={heroStatLabel}>Happy Customers</p>
+                </div>
+                <div style={heroStatItem}>
+                  <h3 style={heroStatNumber}>100%</h3>
+                  <p style={heroStatLabel}>Legal & Safe</p>
+                </div>
               </div>
-              <button 
-                onClick={handleClose}
-                style={{
-                  background: 'none',
-                  border: 'none',
-                  color: 'white',
-                  fontSize: '1.5rem',
-                  cursor: 'pointer',
-                  padding: '5px',
-                  transition: 'transform 0.2s ease',
-                  ':hover': {
-                    transform: 'rotate(90deg)'
-                  }
-                }}
-              >
-                <FiX />
-              </button>
-            </div>
 
-           
-            <div style={{ 
-              padding: '25px',
-              maxHeight: '60vh', 
-              overflowY: 'auto',
-              opacity: isVisible ? 1 : 0.7,
-              transform: isVisible ? 'scale(1)' : 'scale(0.95)',
-              transition: 'all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)',
-            }}>
-              <div style={{
-                display: 'flex',
-                flexDirection: 'column',
-                gap: '20px',
-              }}>
-                <p style={{
-                  margin: 0,
-                  color: '#333',
-                  lineHeight: '1.6',
-                  fontSize: '1rem',
-                }}>
-                  As per 2018 Supreme Court Order, online sale of firecrackers is NOT permitted. 
-                  We value our customers and at the same time, we respect the jurisdiction.
-                </p>
-                
-                <p style={{
-                  margin: 0,
-                  color: '#333',
-                  lineHeight: '1.6',
-                  fontSize: '1rem',
-                }}>
-                  We request our customers to:
-                </p>
-                
-                <ul style={{
-                  margin: 0,
-                  paddingLeft: '20px',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  gap: '10px',
-                }}>
-                  <li>Select your products in the Estimate Page to see your estimation</li>
-                  <li>Submit the required crackers through the Get Estimate Button</li>
-                </ul>
-                
-                <p style={{
-                  margin: 0,
-                  color: '#333',
-                  lineHeight: '1.6',
-                  fontSize: '1rem',
-                }}>
-                  We will contact you within 2 hours and confirm the order through phone call. 
-                  Please add and submit your enquiries and enjoy your Diwali with SRI GOKILAA CRACKERS.
-                </p>
-                
-                <p style={{
-                  margin: 0,
-                  color: '#333',
-                  lineHeight: '1.6',
-                  fontSize: '1rem',
-                }}>
-                  SRI GOKILAA CRACKERS is a shop following 100% legal & statutory compliances and 
-                  all our shops, go-downs are maintained as per the explosive acts. We send 
-                  the parcels through registered and legal transport service providers as like 
-                  every other major companies in Sivakasi is doing so.
-                </p>
+             
+            </div>
+          </div>
+
+          {/* Right: Image Gallery */}
+          <div style={heroImageSection}>
+            <div style={heroImageGrid}>
+              <div style={heroMainImageContainer}>
+                <img src={about_img} alt="Sky Blaze Store" style={heroMainImage} />
+                <div style={heroImageOverlay}>
+                  <span style={heroBadgeStyle}> <FiShield style={{ marginRight: '5px' }} /> Trusted</span>
+                  <span style={heroBadgeStyle}>🎆 Premium</span>
+                </div>
               </div>
-            </div>
-
-          
-            <div style={{
-              padding: '20px',
-              textAlign: 'center',
-              borderTop: '1px solid #f0f0f0',
-              background: '#f9f9f9',
-            }}>
-              <button
-                onClick={handleClose}
-                style={{
-                  background: 'linear-gradient(to right, #ff5e62, #ff9966)',
-                  color: 'white',
-                  border: 'none',
-                  borderRadius: '30px',
-                  padding: '12px 30px',
-                  fontSize: '1rem',
-                  fontWeight: '600',
-                  cursor: 'pointer',
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: '8px',
-                  boxShadow: '0 4px 15px rgba(255, 94, 98, 0.3)',
-                  transition: 'all 0.3s ease',
-                  ':hover': {
-                    transform: 'translateY(-2px)',
-                    boxShadow: '0 6px 20px rgba(255, 94, 98, 0.4)'
-                  }
-                }}
-              >
-                <FiCheck />
-                I Understand
-              </button>
+               <div style={heroActionButtons}>
+                <Link to="/product" style={heroCtaButton}>
+                  <FiGift style={heroButtonIcon} />
+                  Explore Products
+                </Link>
+                <Link to="/about" style={heroSecondaryButton}>
+                  <FiEye style={heroButtonIcon} />
+                  Our Story
+                </Link>
+              </div>
             </div>
           </div>
         </div>
-      )}
-*/}
-   {/* Hero Section */}
-   
- {/* Hero Section */}
-      <section style={heroSectionStyle}>
-        <div style={heroContainerStyle}>
-          <h2 style={heroTitleStyle}>Ignite the Night with Sky Blaze Fireworks</h2>
-          <p style={heroSubtitleStyle}>
-            Premium, eco-conscious firecrackers crafted for unforgettable celebrations — safe, brilliant, and legally compliant.
-          </p>
-          <div style={heroButtonGroup}>
-            <Link to="/product" style={primaryButtonStyle}>
-              Shop Now
+      </section>
+
+      {/* Product Showcase with Cards Layout */}
+      <section style={showcaseSection}>
+        <div style={showcaseContainer}>
+          <div style={showcaseHeader}>
+            <h2 style={showcaseTitle}>Spectacular Fireworks Collection</h2>
+            <p style={showcaseSubtitle}>
+              Discover our handpicked selection of premium crackers designed to create unforgettable moments
+            </p>
+          </div>
+
+          <div style={showcaseGrid}>
+            <ProductShowcaseCard
+              image={new_img}
+              category="Ground Effects"
+              title="Dancing Fountains"
+              description="Mesmerizing ground displays with cascading sparks and vibrant colors that dance across the night sky."
+              features={["5-10 minute duration", "Safe for home use", "Multiple color options"]}
+            />
+            
+            <ProductShowcaseCard
+              image={new_img2}
+              category="Aerial Display"
+              title="Sky Blooms"
+              description="Breathtaking aerial fireworks that paint the sky with spectacular bursts and patterns."
+              features={["High altitude reach", "Professional grade", "Synchronized effects"]}
+            />
+            
+            <ProductShowcaseCard
+              image={new_img3}
+              category="Spinning Wonders"
+              title="Galaxy Wheels"
+              description="Hypnotic spinning crackers with whistling sounds and rainbow color transitions."
+              features={["360° rotation", "Musical whistles", "Long-lasting effect"]}
+            />
+            
+            <ProductShowcaseCard
+              image={new_img4}
+              category="Silver Collection"
+              title="Moonlight Magic"
+              description="Elegant silver fountains perfect for sophisticated celebrations and intimate gatherings."
+              features={["Eco-friendly formula", "Low noise level", "Extended burn time"]}
+            />
+            
+            <ProductShowcaseCard
+              image={pro_img}
+              category="Premium Collection"
+              title="Golden Thunder"
+              description="Powerful crackers with golden sparks and thunderous sounds for grand celebrations."
+              features={["Professional grade", "15-second display", "Weather resistant"]}
+            />
+            
+<ProductShowcaseCard
+  image={bomb}
+  category="Classic Collection"
+  title="Bomb Collection"
+  description="Powerful, traditional Indian bombs that deliver loud cracks and thrilling bursts."
+  features={[
+    "Loud sound bursts (120+ dB)",
+    "Available in small & large packs",
+    "Ideal for Diwali and New Year",
+    "Safe when used responsibly"
+  ]}
+/>
+          </div>
+
+          <div style={showcaseFooter}>
+            <Link to="/product" style={showcaseCtaButton}>
+              Discover Full Collection
+              <FiChevronRight style={showcaseCtaIcon} />
             </Link>
           </div>
         </div>
       </section>
 
-
-{/* About Us Section */}
-<section style={aboutSectionStyle}>
-  <div style={aboutContainerStyle}>
-    {/* Left Content */}
-    <div style={aboutContentStyle}>
-      <h2 style={aboutTitleStyle}>Sky Blaze Crackers</h2>
-      <div style={aboutTextContainer}>
-        <p style={aboutTextStyle}>
-          At <b>Sky Blaze Crackers</b>, celebrations begin with a spark! 🎆  
-          Based in Virudhunagar, the heart of India’s fireworks hub, we bring you  
-          a wide range of safe, vibrant, and eco-friendly crackers that light up  
-          every occasion with joy.
-        </p>
-        <p style={aboutTextStyle}>
-          With over a decade of experience, we’ve grown to become one of the most  
-          trusted manufacturers, retailers, and wholesalers of fireworks. Every  
-          product we sell is carefully sourced and tested to ensure premium quality  
-          and safety for your celebrations.
-        </p>
-        <p style={aboutTextStyle}>
-          Whether it’s <b>Diwali, Weddings, Festivals, or Grand Events</b>,  
-          we guarantee the <span style={{ color: "#ff6a00", fontWeight: "600" }}>
-          best prices</span> and a wide variety that suits every need.
-        </p>
-        <div style={{ textAlign: "center" }}>
-          <Link to="/about" style={learnMoreButtonStyle}>
-            Explore More
-          </Link>
-        </div>
-      </div>
-    </div>
-
-    {/* Right Image & Stats */}
-    <div style={aboutImageContainer}>
-      <img
-        src={about_img}
-        alt="Sri Gokilaa Crackers Store"
-        style={aboutImageStyle}
-      />
-      <div style={aboutStatsContainer}>
-        <div style={aboutStatItem}>
-          <FiCalendar style={aboutStatIcon} />
-          <div>
-            <h3 style={aboutStatNumber}>10+</h3>
-            <p style={aboutStatText}>Years of Trust</p>
+      {/* Why Choose Us Section with Horizontal Layout */}
+      <section style={whyChooseSection}>
+        <div style={whyChooseContainer}>
+          <div style={whyChooseLeft}>
+            <h2 style={whyChooseTitle}>Why Sky Blaze Stands Apart</h2>
+            <p style={whyChooseDescription}>
+              For over a decade, we've been the trusted name in Virudhunagar's fireworks industry. 
+            </p>
+            
+            <div style={whyChooseFeatures}>
+              <FeatureHighlight
+                icon={<FiAward />}
+                title="Quality Guaranteed"
+                description="Hand-tested products with consistent performance and brilliant effects"
+              />
+              <FeatureHighlight
+                icon={<FiHeart />}
+                title="Customer First"
+                description="Personalized service with phone confirmation and expert guidance"
+              />
+              <FeatureHighlight
+                icon={<FiWind />}
+                title="Eco-Conscious"
+                description="Low-smoke, reduced-noise options for environmentally aware celebrations"
+              />
+            </div>
           </div>
-        </div>
-        <div style={aboutStatItem}>
-          <FiAward style={aboutStatIcon} />
-          <div>
-            <h3 style={aboutStatNumber}>5000+</h3>
-            <p style={aboutStatText}>Festivals Celebrated</p>
+
+          <div style={whyChooseRight}>
+            <div style={whyChooseImageContainer}>
+              <img src={celeb} alt="Fireworks Display" style={whyChooseImage} />
+              <div style={whyChooseOverlay}>
+                <div style={whyChooseOverlayContent}>
+                  <h3 style={whyChooseOverlayTitle}>Celebrating Life's Moments</h3>
+                  <p style={whyChooseOverlayText}>Making every festival unforgettable</p>
+                </div>
+              </div>
+            </div>
           </div>
-        </div>
-        <div style={aboutStatItem}>
-          <FiDollarSign style={aboutStatIcon} />
-          <div>
-            <h3 style={aboutStatNumber}>Best</h3>
-            <p style={aboutStatText}>Value for Money</p>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-
-
- 
-
-{/* Products Section */}
-<section style={productsSectionStyle}>
-  <div style={productsContainerStyle}>
-    <h2 style={productsTitleStyle}>Nightfall Fire Crackers</h2>
-    <p style={productsSubtitleStyle}>Big booms, bright lights, and breathtaking effects — fireworks that own the night!</p>
-    
-    <div style={productsGridStyle}>
-      {/* Product Card 1 */}
-      <div style={productCardStyle}>
-       <div style={{...productImageStyle}}><img src={new_img} alt="Test" style={{
-        width: '100%',
-        height: '100%',
-        objectFit: 'cover'
-      }}  /></div>
-        <h3 style={productNameStyle}>Sparkling Fountain</h3>
-        <p style={productDescStyle}>Beautiful ground spinner with colorful sparks</p>
-      </div>
-
-      {/* Product Card 2 */}
-      <div style={productCardStyle}>
-          <div style={{...productImageStyle}}><img src={new_img2} alt="Test" style={{
-        width: '100%',
-        height: '100%',
-        objectFit: 'cover'
-      }}  /></div>
-        <h3 style={productNameStyle}>Sky Palace</h3>
-        <p style={productDescStyle}>100-shot aerial repeater with stunning effects</p>
-      </div>
-
-      {/* Product Card 3 */}
-      <div style={productCardStyle}>
-        <div style={{...productImageStyle}}><img src={new_img3} alt="Test" style={{
-        width: '100%',
-        height: '100%',
-        objectFit: 'cover'
-      }}  /></div>
-        <h3 style={productNameStyle}>Rainbow Wheels</h3>
-        <p style={productDescStyle}>Colorful spinning wheels with whistling sound</p>
-      </div>
-    
-     {/* Product Card*/}
-      <div style={productCardStyle}>
-       <div style={{...productImageStyle}}><img src={new_img4} alt="Test" style={{
-        width: '100%',
-        height: '100%',
-        objectFit: 'cover'
-      }}  /></div>
-        <h3 style={productNameStyle}>Silver Fountain</h3>
-        <p style={productDescStyle}>Colorful fountain with silver sparks</p>
-      </div>
-    </div>
-
-
-    <div style={viewMoreContainerStyle}>
-      <Link to="/product" style={viewMoreButtonStyle}>
-        View All Products
-      </Link>
-    </div>
-  </div>
-</section>
-
-
- {/* Features Section */}
-      <section style={featuresSectionStyle}>
-        <div style={featuresContainerStyle}>
-          <FeatureCard
-            icon={<FiShield size={28} />}
-            title="100% Legal & Safe"
-            desc="Fully compliant with Indian Explosives Act and Supreme Court guidelines."
-          />
-          <FeatureCard
-            icon={<FiTruck size={28} />}
-            title="Fast Delivery"
-            desc="Reliable shipping across Tamil Nadu and beyond via registered carriers."
-          />
-          <FeatureCard
-            icon={<FiStar size={28} />}
-            title="Premium Quality"
-            desc="Hand-tested, vibrant, and long-lasting fireworks for every occasion."
-          />
-          <FeatureCard
-            icon={<FiZap size={28} />}
-            title="Eco-Friendly Options"
-            desc="Low-smoke, noise-reduced crackers for a cleaner, greener celebration."
-          />
         </div>
       </section>
 
-{/* Contact Us Section */}
-<section style={contactSectionStyle}>
-  <div style={contactContainerStyle}>
-    <div style={contactHeaderStyle}>
-      <h2 style={contactTitleStyle}>Get In Touch</h2>
-      <p style={contactSubtitleStyle}>
-        We'd love to hear from you! Reach out for inquiries, orders, or partnerships.
-      </p>
-    </div>
-
-    <div style={contactContentStyle}>
-      {/* Contact Info */}
-      <div style={contactInfoStyle}>
-        <div style={contactCardStyle}>
-          <div style={contactIconWrapper}>
-            <FiMapPin style={contactIconStyle} />
+      {/* Contact Section with Modern Form */}
+      <section style={modernContactSection}>
+        <div style={modernContactContainer}>
+          <div style={contactLeftPanel}>
+            <h2 style={contactPanelTitle}>Let's Create Magic Together</h2>
+            
+            <div style={contactInfoGrid}>
+              <ContactInfoItem
+                icon={<FiMapPin />}
+                title="Visit Our Store"
+                content="4/1C Rajamuthu Nagar, Naranapuram Puthur, Virudhunagar"
+              />
+              <ContactInfoItem
+                icon={<FiPhone />}
+                title="Call Us Today"
+                content="+91 9787009888"
+              />
+              <ContactInfoItem
+                icon={<FiMail />}
+                title="Email Support"
+                content="skyblazecrackers0@gmail.com"
+              />
+              <ContactInfoItem
+                icon={<FiClock />}
+                title="Business Hours"
+                content="Mon-Sat: 9AM-8PM | Sunday: Closed"
+              />
+            </div>
           </div>
-          <h3 style={contactCardTitle}>Location</h3>
-          <p style={contactCardText}>
-            4/1C Rajamuthu Nagar, Naranapuram Puthur,  
-            Naranapuram, Virudhunagar, Tamil Nadu 626189
-          </p>
-        </div>
 
-        <div style={contactCardStyle}>
-          <div style={contactIconWrapper}>
-            <FiMail style={contactIconStyle} />
+          <div style={contactFormPanel}>
+            <div style={formHeaderStyle}>
+              <h3 style={formTitleStyle}>Send us a Message</h3>
+              <p style={formSubtitleStyle}>We'll respond within 2 hours</p>
+            </div>
+            
+            <form style={modernFormStyle} onSubmit={handleContactSubmit}>
+              <div style={formRowStyle}>
+                <input 
+                  type="text" name="name" placeholder="Full Name"
+                  style={modernInputStyle} value={formData.name}
+                  onChange={handleInputChange} required
+                />
+                <input 
+                  type="email" name="email" placeholder="Email Address"
+                  style={modernInputStyle} value={formData.email}
+                  onChange={handleInputChange} required
+                />
+              </div>
+              
+              <div style={formRowStyle}>
+                <input 
+                  type="tel" name="phone" placeholder="Phone Number"
+                  style={modernInputStyle} value={formData.phone}
+                  onChange={handleInputChange}
+                />
+                <select 
+                  name="subject" style={modernSelectStyle}
+                  value={formData.subject} onChange={handleInputChange}
+                >
+                  <option value="">Select Topic</option>
+                  <option value="sales">Product Inquiry</option>
+                  <option value="wholesale">Bulk Orders</option>
+                  <option value="support">Customer Support</option>
+                  <option value="other">General Question</option>
+                </select>
+              </div>
+              
+              <textarea 
+                name="message" placeholder="Tell us about your celebration plans..." rows="4"
+                style={modernTextareaStyle} value={formData.message}
+                onChange={handleInputChange} required
+              ></textarea>
+
+              {submitStatus === 'success' && (
+                <div style={modernSuccessStyle}>
+                  <FiCheck /> Message sent successfully! We'll contact you soon.
+                </div>
+              )}
+              {submitStatus === 'error' && (
+                <div style={modernErrorStyle}>
+                  <FiX /> Failed to send message. Please try again.
+                </div>
+              )}
+
+              <button type="submit" style={modernSubmitButton} disabled={isSubmittingContact}>
+                {isSubmittingContact ? 'Sending...' : (
+                  <>
+                    <FiSend />
+                    Send Message
+                  </>
+                )}
+              </button>
+            </form>
           </div>
-          <h3 style={contactCardTitle}>Email Us</h3>
-          <p style={contactCardText}>srigokilaacrackers0@gmail.com</p>
         </div>
+      </section>
 
-        <div style={contactCardStyle}>
-          <div style={contactIconWrapper}>
-            <FiPhone style={contactIconStyle} />
-          </div>
-          <h3 style={contactCardTitle}>Call Us</h3>
-          <p style={contactCardText}>+91 9787009888</p>
-        </div>
-
-        <div style={contactCardStyle}>
-          <div style={contactIconWrapper}>
-            <FiClock style={contactIconStyle} />
-          </div>
-          <h3 style={contactCardTitle}>Working Hours</h3>
-          <p style={contactCardText}>
-            Mon - Sat: 9AM - 8PM <br />
-            Sunday: Closed
-          </p>
-        </div>
-      </div>
-
-      {/* Contact Form */}
-      <div style={contactFormStyle}>
-        <form style={formStyle} onSubmit={handleContactSubmit}>
-          <input 
-            type="text" name="name" placeholder="Your Name"
-            style={inputStyle} value={formData.name}
-            onChange={handleInputChange} required
-          />
-          <input 
-            type="email" name="email" placeholder="Your Email"
-            style={inputStyle} value={formData.email}
-            onChange={handleInputChange} required
-          />
-          <input 
-            type="tel" name="phone" placeholder="Phone Number"
-            style={inputStyle} value={formData.phone}
-            onChange={handleInputChange}
-          />
-          <select 
-            name="subject" style={inputStyle}
-            value={formData.subject} onChange={handleInputChange}
-          >
-            <option value="">Select Subject</option>
-            <option value="sales">Sales Inquiry</option>
-            <option value="wholesale">Wholesale Orders</option>
-            <option value="support">Customer Support</option>
-            <option value="other">Other</option>
-          </select>
-          <textarea 
-            name="message" placeholder="Your Message" rows="5"
-            style={textareaStyle} value={formData.message}
-            onChange={handleInputChange} required
-          ></textarea>
-
-          {submitStatus === 'success' && (
-            <div style={successMessageStyle}>Message sent successfully!</div>
-          )}
-          {submitStatus === 'error' && (
-            <div style={errorMessageStyle}>Failed to send message. Please try again.</div>
-          )}
-
-          <button type="submit" style={submitButtonStyle} disabled={isSubmittingContact}>
-            {isSubmittingContact ? 'Sending...' : <> <FiSend style={submitIconStyle}/> Send Message </>}
-          </button>
-        </form>
-      </div>
-    </div>
-  </div>
-</section>
-
-
-{/* Footer Section */}
- <Footer />
+      <Footer />
     </>
   );
 }
-function FeatureCard({ icon, title, desc }) {
+
+// Product Showcase Card Component
+function ProductShowcaseCard({ image, category, title, description, features }) {
   return (
-    <div style={featureCardStyle}>
-      <div style={featureIconWrapper}>{icon}</div>
-      <h3 style={featureTitleStyle}>{title}</h3>
-      <p style={featureDescStyle}>{desc}</p>
+    <div style={showcaseCardStyle}>
+      <div style={showcaseCardImageContainer}>
+        <img src={image} alt={title} style={showcaseCardImage} />
+        <div style={showcaseCardBadge}>{category}</div>
+      </div>
+      <div style={showcaseCardContent}>
+        <h3 style={showcaseCardTitle}>{title}</h3>
+        <p style={showcaseCardDescription}>{description}</p>
+        <ul style={showcaseCardFeatures}>
+          {features.map((feature, index) => (
+            <li key={index} style={showcaseFeatureItem}>
+              <FiCheck style={showcaseFeatureIcon} />
+              {feature}
+            </li>
+          ))}
+        </ul>
+      </div>
     </div>
   );
 }
 
-// NavLink component with enhanced hover effects
-function NavLink({ to, children }) {
-  const [isHovered, setIsHovered] = React.useState(false);
-  
+// Feature Highlight Component
+function FeatureHighlight({ icon, title, description }) {
   return (
-    <Link 
-      to={to} 
-      style={isHovered ? {...navLinkStyle, ...navLinkHoverStyle} : navLinkStyle}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
-    >
-      {children}
-    </Link>
+    <div style={featureHighlightStyle}>
+      <div style={featureHighlightIcon}>
+        {React.cloneElement(icon, { size: 20 })}
+      </div>
+      <div style={featureHighlightContent}>
+        <h4 style={featureHighlightTitle}>{title}</h4>
+        <p style={featureHighlightDescription}>{description}</p>
+      </div>
+    </div>
   );
 }
 
-// Existing styles (unchanged)
-const headerStyle = {
-  background: 'linear-gradient(135deg, #1a237e 0%, #3949AB 50%, #5c6bc0 100%)',
-  padding: '0.5rem 2rem',
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'space-between',
-  
-  position: 'sticky',
-  top: 0,
-  zIndex: 1000,
-};
-
-const logoContainerStyle = {
-  display: 'flex',
-  alignItems: 'center',
-  gap: '1rem'
-};
-
-const logoStyle = {
-  height: '70px',
-  width: '70px',
-  borderRadius: '50%',
-  objectFit: 'cover',
-  border: '2px solid #FF9800',
-  boxShadow: '0 0 15px rgba(255, 152, 0, 0.7)'
-};
-
-const navListStyle = {
-  display: 'flex',
-  listStyle: 'none',
-  gap: '1.5rem',
-  margin: 0,
-  padding: 0
-};
-
-const navItemStyle = {
-  borderRadius: '30px',
-  transition: 'all 0.3s ease'
-};
-
-const navLinkStyle = {
-  display: 'inline-block',
-  padding: '0.5rem 1rem',
-  backgroundColor: 'white',
-  color: '#3949AB',
-  textDecoration: 'none',
-  borderRadius: '10px',
-  fontWeight: 'bold',
-  transition: 'all 0.3s ease',
-  boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
-};
-
-const loginnavLinkStyle={
-    display: 'inline-block',
-  padding: '0.5rem 1rem',
-  backgroundColor: '#FF9800',
-    color: 'white',
-  textDecoration: 'none',
-  borderRadius: '10px',
-  fontWeight: 'bold',
-  transition: 'all 0.3s ease',
-  boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
-  ':hover': {
-      backgroundColor: '#F57C00',
-      transform: 'translateY(-2px)',
-      boxShadow: '0 6px 20px rgba(255, 152, 0, 0.6)'
-    }
+// Contact Info Item Component
+function ContactInfoItem({ icon, title, content }) {
+  return (
+    <div style={contactInfoItemStyle}>
+      <div style={contactInfoIcon}>
+        {React.cloneElement(icon, { size: 18 })}
+      </div>
+      <div>
+        <h4 style={contactInfoTitle}>{title}</h4>
+        <p style={contactInfoContent}>{content}</p>
+      </div>
+    </div>
+  );
 }
 
+// STYLES
 
-const navLinkHoverStyle = {
-  border: 'none'
+// Main Hero Section
+const mainHeroStyle = {
+  minHeight: '50vh',
+  background: `linear-gradient(45deg, rgba(255, 107, 0, 0.95), rgba(199, 14, 89, 0.85)), url(${hero_bg}) center/cover fixed`,
+  display: 'flex',
+  alignItems: 'center',
+  padding: '2rem',
 };
 
-const heroSectionStyle = {
-  padding: '50px 20px',
-  background: `linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url(${hero_bg}) center/cover no-repeat`,
-  textAlign: 'center',
-  color: '#fff',
-};
-
-const heroContainerStyle = {
-  maxWidth: '800px',
+const heroGridContainer = {
+  maxWidth: '1400px',
   margin: '0 auto',
+  display: 'grid',
+  gridTemplateColumns: '1.2fr 1fr',
+  gap: '4rem',
+  alignItems: 'center',
+  '@media (max-width: 968px)': {
+    gridTemplateColumns: '1fr',
+    gap: '3rem',
+    textAlign: 'center'
+  }
 };
 
-const heroTitleStyle = {
-  fontSize: 'clamp(2.5rem, 4vw, 4rem)',
-  fontWeight: '700',
-  marginBottom: '1rem',
-  textShadow: '0 2px 10px rgba(0,0,0,0.5)',
-  marginTop: '0px'
+const heroTextSection = {
+  color: 'white',
 };
 
-const heroSubtitleStyle = {
+const heroContentWrapper = {
+  maxWidth: '600px',
+};
+
+const heroBadgeStyle = {
+  display: 'inline-block',
+  background: 'rgba(255, 255, 255, 0.2)',
+  backdropFilter: 'blur(10px)',
+  padding: '0.5rem 1.5rem',
+  borderRadius: '50px',
+  fontSize: '0.9rem',
+  fontWeight: '600',
+  marginBottom: '1.5rem',
+  border: '1px solid rgba(255, 255, 255, 0.3)',
+};
+
+const heroMainTitle = {
+  fontSize: 'clamp(3rem, 6vw, 5rem)',
+  fontWeight: '800',
+  lineHeight: '1.1',
+  marginBottom: '1.5rem',
+  marginTop: '0px',
+  textShadow: '0 4px 20px rgba(0,0,0,0.5)',
+};
+
+const heroAccentText = {
+  color: '#FFD54F',
+  textShadow: '0 0 30px rgba(255, 213, 79, 0.6)',
+};
+
+const heroDescription = {
   fontSize: '1.2rem',
-  marginBottom: '2rem',
+  lineHeight: '1.6',
+  marginBottom: '2.5rem',
+  opacity: 0.95,
+};
+
+const heroStatsGrid = {
+  display: 'grid',
+  gridTemplateColumns: 'repeat(3, 1fr)',
+  gap: '1.5rem',
+  marginBottom: '2.5rem',
+};
+
+const heroStatItem = {
+  textAlign: 'center',
+  padding: '1rem',
+  background: 'rgba(255, 255, 255, 0.1)',
+  borderRadius: '12px',
+  backdropFilter: 'blur(10px)',
+};
+
+const heroStatNumber = {
+  fontSize: '2rem',
+  fontWeight: '700',
+  margin: '0 0 0.5rem 0',
+  color: '#FFD54F',
+};
+
+const heroStatLabel = {
+  fontSize: '0.9rem',
+  margin: '0',
   opacity: 0.9,
 };
 
-const heroButtonGroup = {
+const heroActionButtons = {
   display: 'flex',
   justifyContent: 'center',
   gap: '1rem',
   flexWrap: 'wrap',
+  paddingTop: '20px',
 };
 
-const primaryButtonStyle = {
-  padding: '12px 30px',
-  backgroundColor: '#D81B60',
-  color: 'white',
-  textDecoration: 'none',
-  borderRadius: '30px',
-  fontWeight: '600',
-  fontSize: '1rem',
-  transition: 'all 0.3s ease',
-  boxShadow: '0 4px 15px rgba(216, 27, 96, 0.4)',
-};
-
-const secondaryButtonStyle = {
-  ...primaryButtonStyle,
-  backgroundColor: 'transparent',
-  border: '2px solid white',
-  boxShadow: 'none',
-};
-  // About Us Section Styles
-// Section Container
-const aboutSectionStyle = {
-  padding: '3rem 1rem',
-  background: 'linear-gradient(135deg, #fff7f7, #ffeaea)',
-};
-
-// Main Flex Container
-const aboutContainerStyle = {
-  maxWidth: '1200px',
-  margin: '0 auto',
-  display: 'flex',
-  flexWrap: 'wrap',
-  gap: '3rem',
+const heroCtaButton = {
+  display: 'inline-flex',
   alignItems: 'center',
   justifyContent: 'center',
-};
-
-// Left Content
-const aboutContentStyle = {
-  flex: '1 1 45%',
-  minWidth: '300px',
-  textAlign: 'center',
-};
-
-const aboutTitleStyle = {
-  fontSize: '2.5rem',
-  color: '#C30E59',
-  marginBottom: '1.5rem',
-  fontWeight: '700',
-  position: 'relative',
-};
-
-const aboutTextContainer = {
-  display: 'flex',
-  flexDirection: 'column',
-  gap: '0px',
-  textAlign: 'justify',
-};
-
-const aboutTextStyle = {
-  fontSize: '1rem',
-  lineHeight: '1.7',
-  color: '#444',
-  margin: '5px 0'
-};
-
-// Right Side Image
-const aboutImageContainer = {
-  flex: '1 1 45%',
-  minWidth: '300px',
-  position: 'relative',
-  textAlign: 'center',
-};
-
-const aboutImageStyle = {
-  height: '200px',
-  width: '100%',
-  maxWidth: '600px',
-  borderRadius: '20px',
-  objectFit: 'cover',
-  boxShadow: '0 8px 25px rgba(0,0,0,0.15)',
-};
-
-// Stats Section
-const aboutStatsContainer = {
-  display: 'flex',
-  justifyContent: 'center',
-  flexWrap: 'wrap',
-  gap: '1.5rem',
-  marginTop: '1rem',
-};
-
-const aboutStatItem = {
-  flex: '1 1 150px',
-  display: 'flex',
-  alignItems: 'center',
-  gap: '1rem',
-  backgroundColor: '#fff',
-  padding: '1.5rem',
-  borderRadius: '15px',
-  boxShadow: '0 8px 20px rgba(0, 0, 0, 0.08)',
-  transition: 'transform 0.3s ease, box-shadow 0.3s ease',
-  cursor: 'pointer',
-};
-
-const aboutStatIcon = {
-  fontSize: '2rem',
-  color: '#ff6a00',
-};
-
-const aboutStatNumber = {
-  fontSize: '2rem',
-  margin: '0',
-  fontWeight: '700',
-  color: '#C30E59',
-};
-
-const aboutStatText = {
-  fontSize: '1rem',
-  margin: '0',
-  color: '#777',
-};
-
-// Button
-const learnMoreButtonStyle = {
-  display: 'inline-block',
-  marginTop: '1.5rem',
-  padding: '12px 30px',
-  background: 'linear-gradient(45deg, #ff6a00, #ff3d00)',
-  color: 'white',
-  textDecoration: 'none',
-  borderRadius: '30px',
-  fontWeight: 'bold',
-  fontSize: '1rem',
-  transition: 'all 0.3s ease',
-  boxShadow: '0 6px 18px rgba(255, 90, 0, 0.5)',
-  border: 'none',
-  cursor: 'pointer',
-};
-
-const featuresSectionStyle = {
-  padding: '5rem 1rem',
-  background: '#f9f9f9',
-};
-
-const featuresContainerStyle = {
-  maxWidth: '1200px',
-  margin: '0 auto',
-  display: 'grid',
-  gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
-  gap: '2rem',
-};
-
-const featureCardStyle = {
-  backgroundColor: '#fff',
-  padding: '2rem 1.5rem',
-  borderRadius: '12px',
-  textAlign: 'center',
-  boxShadow: '0 6px 15px rgba(0,0,0,0.05)',
-};
-
-const featureIconWrapper = {
-  backgroundColor: '#D81B60',
-  color: 'white',
-  width: '60px',
-  height: '60px',
-  borderRadius: '50%',
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'center',
-  margin: '0 auto 1rem',
-};
-
-const featureTitleStyle = {
-  fontSize: '1.3rem',
-  fontWeight: '600',
+  gap: '0.5rem',
+  padding: '0.75rem 1.5rem', // Reduced padding for compact look
+  background: 'linear-gradient(45deg, #FFD54F, #FFC107)',
   color: '#333',
-  marginBottom: '0.5rem',
+  textDecoration: 'none',
+  borderRadius: '50px',
+  fontWeight: '700',
+  fontSize: '1rem', // Slightly smaller for balance
+  transition: 'all 0.3s ease',
+  boxShadow: '0 4px 15px rgba(255, 213, 79, 0.4)',
+  lineHeight: '1.2',
 };
 
-const featureDescStyle = {
-  fontSize: '0.95rem',
-  color: '#666',
-  lineHeight: '1.5',
-};
-
-  // Products Section Styles
-// Section Container
-const productsSectionStyle = {
-  padding: "2rem 1rem",
-  background: "#fff",
-};
-
-// Wrapper
-const productsContainerStyle = {
-  maxWidth: "1200px",
-  margin: "0 auto",
-  textAlign: "center",
-};
-
-// Title
-const productsTitleStyle = {
-  fontSize: "2.5rem",
-  fontWeight: "700",
-  marginBottom: "0.5rem",
-  color: "#C30E59",
-  marginTop: "0px",
-};
-
-const productsSubtitleStyle = {
-  fontSize: "1.1rem",
-  color: "#666",
-  marginBottom: "3rem",
-};
-
-// Product Grid
-const productsGridStyle = {
-  display: "grid",
-  gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))",
-  gap: "2rem",
-  justifyContent: "center",
-  alignItems: "stretch",
-};
-
-// Card Style
-const productCardStyle = {
-  background: "#fff",
-  borderRadius: "15px",
-  overflow: "hidden",
-  boxShadow: "0 6px 18px rgba(0,0,0,0.1)",
-  transition: "transform 0.3s ease, box-shadow 0.3s ease",
-  cursor: "pointer",
-};
-
-const productImageStyle = {
-  width: "100%",
-  height: "200px",
-  overflow: "hidden",
-};
-
-const productNameStyle = {
-  fontSize: "1.3rem",
-  fontWeight: "600",
-  margin: "0.5rem 0 0.5rem",
-  color: "#C30E59",
-};
-
-const productDescStyle = {
-  fontSize: "0.95rem",
-  color: "#555",
-  padding: "0 1rem 1rem",
-  lineHeight: "1.5",
-};
-
-// View More
-const viewMoreContainerStyle = {
-  marginTop: "2rem",
-};
-
-const viewMoreButtonStyle = {
-  padding: "12px 30px",
-  background: "linear-gradient(45deg, #ff6a00, #ff3d00)",
-  color: "#fff",
-  fontWeight: "600",
-  fontSize: "1rem",
-  borderRadius: "30px",
-  textDecoration: "none",
-  transition: "all 0.3s ease",
-  boxShadow: "0 6px 18px rgba(255, 90, 0, 0.5)",
-  cursor: "pointer",
+const heroSecondaryButton = {
+  display: 'inline-flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  gap: '0.5rem',
+  padding: '0.75rem 1.5rem', // Match height with primary
+  background: 'transparent',
+  color: 'white',
+  textDecoration: 'none',
+  borderRadius: '50px',
+  fontWeight: '600',
+  fontSize: '1rem',
+  border: '2px solid rgba(255, 255, 255, 0.8)',
+  transition: 'all 0.3s ease',
+  lineHeight: '1.2',
 };
 
 
-  // Footer Styles
-const footerStyle = {
-    backgroundColor: '#1a237e',
-    color: 'white',
-    padding: '4rem 2rem 0',
-  };
-  
-  const footerContainerStyle = {
-    maxWidth: '1200px',
-    margin: '0 auto',
-    display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
-    gap: '2rem',
-    paddingBottom: '2rem',
-  };
-  
-  const footerColumnStyle = {
-    marginBottom: '2rem',
-  };
-  
-  const footerLogoStyle = {
-    height: '50px',
-    width: '50px',
-    borderRadius: '50%',
-    objectFit: 'cover',
-    border: '2px solid #FF9800',
-  };
-  
-  const companyNameStyle = {
-    fontSize: '1.5rem',
-    margin: '0.5rem 0',
-    color: 'white',
-  };
-  
-  const footerTextStyle = {
-    fontSize: '0.9rem',
-    lineHeight: '1.6',
-    color: '#e0e0e0',
-    margin: '0.5rem 0',
-  };
-  
-  const footerHeadingStyle = {
-    fontSize: '1.2rem',
-    marginBottom: '1.5rem',
-    position: 'relative',
-    paddingBottom: '0.5rem',
-    color: 'white',
-  };
-  
-  const footerListStyle = {
-    listStyle: 'none',
-    padding: 0,
-    margin: 0,
-  };
-  
-  const footerListItemStyle = {
-    marginBottom: '0.8rem',
-    display: 'flex',
-    alignItems: 'flex-start',
-    gap: '0.5rem',
-  };
-  
-  const footerLinkStyle = {
-    color: '#e0e0e0',
-    textDecoration: 'none',
-    fontSize: '0.9rem',
-    transition: 'color 0.3s ease',
-    ':hover': {
-      color: '#FF9800',
-    }
-  };
-  
-  const socialIconsStyle = {
-    display: 'flex',
-    gap: '1rem',
-    marginTop: '1rem',
-  };
-  
-  const socialIconLinkStyle = {
-    color: 'white',
-    backgroundColor: '#3949AB',
-    borderRadius: '50%',
-    width: '36px',
-    height: '36px',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    transition: 'all 0.3s ease',
-    ':hover': {
-      backgroundColor: '#FF9800',
-      transform: 'translateY(-3px)',
-    }
-  };
-  
-  const socialIconStyle = {
-    fontSize: '1rem',
-  };
-  
-
-  
-  const listIconStyle = {
-    fontSize: '0.8rem',
-    color: '#FF9800',
-    marginTop: '4px',
-  };
-  
-  const newsletterFormStyle = {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '0.5rem',
-  };
-  
-  const newsletterInputStyle = {
-    padding: '0.8rem',
-    borderRadius: '5px',
-    border: 'none',
-    fontSize: '0.9rem',
-  };
-  
-  const newsletterButtonStyle = {
-    padding: '0.8rem',
-    backgroundColor: '#FF9800',
-    color: 'white',
-    border: 'none',
-    borderRadius: '5px',
-    fontWeight: 'bold',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: '0.5rem',
-    cursor: 'pointer',
-    transition: 'all 0.3s ease',
-    ':hover': {
-      backgroundColor: '#F57C00',
-    }
-  };
-  
-  const sendIconStyle = {
-    fontSize: '1rem',
-  };
-  
-  const copyrightStyle = {
-    borderTop: '1px solid #3949AB',
-    padding: '1.5rem 0',
-    textAlign: 'center',
-  };
-  
-  const copyrightTextStyle = {
-    fontSize: '0.9rem',
-    color: '#e0e0e0',
-    margin: '0 0 1rem',
-  };
-  
-  const footerLinksStyle = {
-    display: 'flex',
-    justifyContent: 'center',
-    gap: '1rem',
-    flexWrap: 'wrap',
-  };
-  
-  const footerBottomLinkStyle = {
-    color: '#e0e0e0',
-    textDecoration: 'none',
-    fontSize: '0.8rem',
-    transition: 'color 0.3s ease',
-    ':hover': {
-      color: '#FF9800',
-    }
-  };
-  
-  const dividerStyle = {
-    color: '#3949AB',
-  };
-
-// Section
-const safetySectionStyle = {
-  padding: "4rem 1rem",
-  background: "linear-gradient(135deg, #fff8f5, #f0f7ff)", // warm + calm
+const heroButtonIcon = {
+  fontSize: '1.2rem',
 };
 
-// Container
-const safetyContainerStyle = {
-  maxWidth: "1200px",
-  margin: "0 auto",
-  textAlign: "center",
+// Hero Image Section
+const heroImageSection = {
+  position: 'relative',
 };
 
-// Title + Subtitle
-const safetyTitleStyle = {
-  fontSize: "2.5rem",
-  fontWeight: "700",
-  marginBottom: "0.5rem",
-  color: "#C30E59",
+const heroImageGrid = {
+  // display: 'grid',
+  // gap: '1rem',
+  // gridTemplateRows: '2fr 1fr',
 };
 
-const safetySubtitleStyle = {
-  fontSize: "1.1rem",
-  color: "#555",
-  marginBottom: "3rem",
+const heroMainImageContainer = {
+  position: 'relative',
+  borderRadius: '20px',
+  overflow: 'hidden',
+  boxShadow: '0 20px 40px rgba(0,0,0,0.3)',
 };
 
-// Grid
-const safetyGridStyle = {
-  display: "grid",
-  gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
-  gap: "2rem",
-  marginBottom: "2rem",
+const heroMainImage = {
+  width: '100%',
+  height: '350px',
+  objectFit: 'cover',
 };
 
-// Card
-const safetyCardStyle = {
-  background: "#fff",
-  padding: "2rem 1.5rem",
-  borderRadius: "15px",
-  boxShadow: "0 6px 18px rgba(0,0,0,0.08)",
-  transition: "transform 0.3s ease, box-shadow 0.3s ease",
-  cursor: "default",
-  textAlign: "center",
+const heroImageOverlay = {
+  position: 'absolute',
+  top: '1rem',
+  left: '1rem',
+  right: '1rem',
+  display: 'flex',
+  justifyContent: 'space-between'
 };
 
-// Icon Container
-const safetyIconContainer = {
-  width: "60px",
-  height: "60px",
-  borderRadius: "50%",
-  background: "linear-gradient(45deg, #ff6a00, #ff3d00)",
-  display: "flex",
-  justifyContent: "center",
-  alignItems: "center",
-  margin: "0 auto 1rem",
-  boxShadow: "0 4px 12px rgba(255, 90, 0, 0.4)",
+const heroImageBadge = {
+  background: 'rgba(255, 213, 79, 0.95)',
+  color: '#333',
+  padding: '0.5rem 1rem',
+  borderRadius: '20px',
+  fontSize: '0.9rem',
+  fontWeight: '600',
 };
 
-const safetyIconStyle = {
-  fontSize: "1.8rem",
-  color: "#fff",
+const heroSmallImagesContainer = {
+  display: 'grid',
+  gridTemplateColumns: '1fr 1fr',
+  gap: '1rem',
 };
 
-// Tip Title + Text
-const safetyTipTitle = {
-  fontSize: "1.2rem",
-  fontWeight: "600",
-  marginBottom: "0.5rem",
-  color: "#C30E59",
+const heroSmallImage = {
+  width: '100%',
+  height: '120px',
+  objectFit: 'cover',
+  borderRadius: '15px',
+  boxShadow: '0 10px 25px rgba(0,0,0,0.2)',
 };
 
-const safetyTipText = {
-  fontSize: "0.95rem",
-  color: "#444",
-  lineHeight: "1.6",
+// Product Showcase Section
+const showcaseSection = {
+  padding: '2rem 2rem',
+  background: 'linear-gradient(135deg, #f8f9fa, #e3f2fd)',
 };
 
-// Button
-const safetyButtonContainer = {
-  marginTop: "2.5rem",
-};
-
-const safetyButtonStyle = {
-  display: "inline-flex",
-  alignItems: "center",
-  gap: "0.5rem",
-  padding: "12px 28px",
-  background: "linear-gradient(45deg, #ff6a00, #ff3d00)",
-  color: "#fff",
-  fontWeight: "600",
-  fontSize: "1rem",
-  borderRadius: "30px",
-  textDecoration: "none",
-  transition: "all 0.3s ease",
-  boxShadow: "0 6px 18px rgba(255, 90, 0, 0.5)",
-  cursor: "pointer",
-};
-
-const buttonIconStyle = {
-  fontSize: "1.2rem",
-};
-
-
-  // Contact Us Section Styles
-// Section
-const contactSectionStyle = {
-  padding: '2rem 1rem',
-   background: 'linear-gradient(135deg, #fff7f7, #ffeaea)',
-};
-
-// Container
-const contactContainerStyle = {
-  maxWidth: '1200px',
+const showcaseContainer = {
+  maxWidth: '1400px',
   margin: '0 auto',
 };
 
-// Header
-const contactHeaderStyle = {
+const showcaseHeader = {
   textAlign: 'center',
+  marginBottom: '4rem',
+};
+
+const showcaseTitle = {
+  fontSize: '3rem',
+  fontWeight: '800',
+  color: '#C30E59',
+  marginBottom: '1rem',
+  marginTop: '0',
+};
+
+const showcaseSubtitle = {
+  fontSize: '1.2rem',
+  color: '#666',
+  maxWidth: '600px',
+  margin: '0 auto',
+  lineHeight: '1.6',
+};
+
+const showcaseGrid = {
+  display: 'grid',
+  gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
+  gap: '2rem',
   marginBottom: '3rem',
 };
 
-const contactTitleStyle = {
-  fontSize: '2.8rem',
+const showcaseCardStyle = {
+  background: 'white',
+  borderRadius: '20px',
+  overflow: 'hidden',
+  boxShadow: '0 10px 30px rgba(0,0,0,0.1)',
+  transition: 'all 0.3s ease',
+  ':hover': {
+    transform: 'translateY(-10px)',
+    boxShadow: '0 20px 40px rgba(0,0,0,0.15)',
+  }
+};
+
+const showcaseCardImageContainer = {
+  position: 'relative',
+  height: '250px',
+  overflow: 'hidden',
+};
+
+const showcaseCardImage = {
+  width: '100%',
+  height: '100%',
+  objectFit: 'cover',
+  transition: 'transform 0.3s ease',
+};
+
+const showcaseCardBadge = {
+  position: 'absolute',
+  top: '1rem',
+  left: '1rem',
+  background: 'linear-gradient(45deg, #ff6a00, #ff3d00)',
+  color: 'white',
+  padding: '0.3rem 0.8rem',
+  borderRadius: '15px',
+  fontSize: '0.8rem',
+  fontWeight: '600',
+};
+
+const showcaseCardContent = {
+  padding: '2rem',
+};
+
+const showcaseCardTitle = {
+  fontSize: '1.5rem',
   fontWeight: '700',
   color: '#C30E59',
-  marginBottom: '0.5rem',
-  marginTop: '0px',
-};
-
-const contactSubtitleStyle = {
-  fontSize: '1.1rem',
-  color: '#666',
-  maxWidth: '600px',
-  margin: '0 auto',
-};
-
-// Grid Layout
-const contactContentStyle = {
-  display: 'grid',
-  gridTemplateColumns: '1fr 1fr',
-  gap: '2rem',
-  '@media (max-width: 768px)': { gridTemplateColumns: '1fr' }
-};
-
-// Info Cards
-const contactInfoStyle = {
-  display: 'grid',
-  gridTemplateColumns: '1fr 1fr',
-  gap: '1.5rem',
-  '@media (max-width: 768px)': { gridTemplateColumns: '1fr' }
-};
-
-const contactCardStyle = {
-  background: '#fff',
-  borderRadius: '12px',
-  padding: '1.5rem',
-  boxShadow: '0 6px 20px rgba(0,0,0,0.06)',
-  transition: 'all 0.3s ease',
-};
-
-const contactIconWrapper = {
-  width: '50px',
-  height: '50px',
-  borderRadius: '12px',
-  background: '#C30E5920',
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'center',
   marginBottom: '1rem',
 };
 
-const contactIconStyle = { fontSize: '1.4rem', color: '#C30E59' };
+const showcaseCardDescription = {
+  fontSize: '1rem',
+  color: '#666',
+  lineHeight: '1.6',
+  marginBottom: '1.5rem',
+};
 
-const contactCardTitle = { fontSize: '1.2rem', fontWeight: '600', color: '#C30E59' };
-const contactCardText = { fontSize: '0.95rem', color: '#444', lineHeight: '1.6' };
+const showcaseCardFeatures = {
+  listStyle: 'none',
+  padding: '0',
+  margin: '0',
+  display: 'flex',
+  flexDirection: 'column',
+  gap: '0.5rem',
+};
 
-// Form
-const contactFormStyle = {
+const showcaseFeatureItem = {
+  display: 'flex',
+  alignItems: 'center',
+  gap: '0.5rem',
+  fontSize: '0.9rem',
+  color: '#555',
+};
+
+const showcaseFeatureIcon = {
+  color: '#4CAF50',
+  fontSize: '1rem',
+};
+
+const showcaseFooter = {
+  textAlign: 'center',
+};
+
+const showcaseCtaButton = {
+  display: 'inline-flex',
+  alignItems: 'center',
+  gap: '0.5rem',
+  padding: '1rem 2.5rem',
+  background: 'linear-gradient(45deg, #C30E59, #E91E63)',
+  color: 'white',
+  textDecoration: 'none',
+  borderRadius: '50px',
+  fontWeight: '700',
+  fontSize: '1.1rem',
+  transition: 'all 0.3s ease',
+  boxShadow: '0 8px 25px rgba(199, 14, 89, 0.4)',
+};
+
+const showcaseCtaIcon = {
+  fontSize: '1.2rem',
+};
+
+// Why Choose Us Section
+const whyChooseSection = {
+  padding: '2rem 2rem',
   background: '#fff',
+};
+
+const whyChooseContainer = {
+  maxWidth: '1400px',
+  margin: '0 auto',
+  display: 'grid',
+  gridTemplateColumns: '1.2fr 1fr',
+  gap: '4rem',
+  alignItems: 'center',
+  '@media (max-width: 968px)': {
+    gridTemplateColumns: '1fr',
+    gap: '3rem',
+  }
+};
+
+const whyChooseLeft = {
+  padding: '2rem 0',
+};
+
+const whyChooseTitle = {
+  fontSize: '3rem',
+  fontWeight: '800',
+  color: '#C30E59',
+  marginBottom: '1.5rem',
+  lineHeight: '1.2',
+  marginTop: '0',
+};
+
+const whyChooseDescription = {
+  fontSize: '1.2rem',
+  color: '#666',
+  lineHeight: '1.7',
+  marginBottom: '1rem',
+};
+
+const whyChooseFeatures = {
+  display: 'flex',
+  flexDirection: 'column',
+  gap: '2rem',
+};
+
+const featureHighlightStyle = {
+  display: 'flex',
+  alignItems: 'flex-start',
+  gap: '1rem',
+  padding: '1.5rem',
+  background: 'linear-gradient(135deg, #fff5f5, #f0f8ff)',
+  borderRadius: '15px',
+  border: '1px solid rgba(199, 14, 89, 0.1)',
+};
+
+const featureHighlightIcon = {
+  width: '50px',
+  height: '50px',
   borderRadius: '12px',
+  background: 'linear-gradient(45deg, #C30E59, #E91E63)',
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  color: 'white',
+  fontSize: '1.2rem',
+  flexShrink: 0,
+};
+
+const featureHighlightContent = {
+  flex: 1,
+};
+
+const featureHighlightTitle = {
+  fontSize: '1.2rem',
+  fontWeight: '700',
+  color: '#C30E59',
+  marginBottom: '0.5rem',
+  margin: '0 0 0.5rem 0',
+};
+
+const featureHighlightDescription = {
+  fontSize: '1rem',
+  color: '#666',
+  lineHeight: '1.5',
+  margin: '0',
+};
+
+const whyChooseRight = {
+  position: 'relative',
+};
+
+const whyChooseImageContainer = {
+  position: 'relative',
+  borderRadius: '20px',
+  overflow: 'hidden',
+  boxShadow: '0 20px 40px rgba(0,0,0,0.15)',
+};
+
+const whyChooseImage = {
+  width: '100%',
+  height: '400px',
+  objectFit: 'cover',
+};
+
+const whyChooseOverlay = {
+  position: 'absolute',
+  bottom: '0',
+  left: '0',
+  right: '0',
+  background: 'linear-gradient(transparent, rgba(0,0,0,0.8))',
   padding: '2rem',
-  boxShadow: '0 6px 20px rgba(0,0,0,0.05)',
+  color: 'white',
 };
 
-const formStyle = { display: 'flex', flexDirection: 'column', gap: '1rem' };
+const whyChooseOverlayContent = {
+  textAlign: 'center',
+};
 
-const inputStyle = {
-  padding: '0.9rem 1rem',
-  borderRadius: '8px',
-  border: '1px solid #ddd',
+const whyChooseOverlayTitle = {
+  fontSize: '1.5rem',
+  fontWeight: '700',
+  marginBottom: '0.5rem',
+  margin: '0 0 0.5rem 0',
+};
+
+const whyChooseOverlayText = {
+  fontSize: '1rem',
+  opacity: 0.9,
+  margin: '0',
+};
+
+// Modern Contact Section
+const modernContactSection = {
+  padding: '2rem 2rem',
+ background: "linear-gradient(135deg, #fff7f7, #ffeaea)",
+};
+
+const modernContactContainer = {
+  maxWidth: '1400px',
+  margin: '0 auto',
+  display: 'grid',
+  gridTemplateColumns: '1fr 1fr',
+  gap: '4rem',
+  alignItems: 'stretch',
+  '@media (max-width: 968px)': {
+    gridTemplateColumns: '1fr',
+    gap: '3rem',
+  }
+};
+
+const contactLeftPanel = {
+  color: 'white',
+  padding: '2rem',
+};
+
+const contactPanelTitle = {
+  fontSize: '2rem',
+  fontWeight: '800',
+  marginBottom: '1rem',
+  marginTop: '0',
+  color: '#C30E59',
+};
+
+
+const contactInfoGrid = {
+  display: 'grid',
+  gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
+  gap: '1rem',
+};
+
+const contactInfoItemStyle = {
+  display: 'flex',
+  alignItems: 'flex-start',
+  gap: '1rem',
+  padding: '1.5rem',
+  background: '#fff',
+  borderRadius: '15px',
+  backdropFilter: 'blur(10px)',
+  border: '1px solid rgba(255, 255, 255, 0.2)',
+};
+
+const contactInfoIcon = {
+  width: '40px',
+  height: '40px',
+  borderRadius: '10px',
+  background: 'rgba(255, 213, 79, 0.2)',
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  color: '#FFD54F',
+  flexShrink: 0,
+};
+
+const contactInfoTitle = {
+  fontSize: '1.1rem',
+  fontWeight: '600',
+  marginBottom: '0.5rem',
+  margin: '0 0 0.5rem 0',
+  color: '#FFD54F',
+};
+
+const contactInfoContent = {
   fontSize: '0.95rem',
-  outline: 'none',
-  transition: '0.3s',
+  lineHeight: '1.5',
+  opacity: 0.9,
+  margin: '0',
+  color: '#000'
 };
 
-const textareaStyle = { ...inputStyle, resize: 'vertical' };
+// Contact Form Panel
+const contactFormPanel = {
+  background: 'white',
+  borderRadius: '20px',
+  padding: '3rem',
+  boxShadow: '0 20px 40px rgba(0,0,0,0.1)',
+};
 
-const submitButtonStyle = {
+const formHeaderStyle = {
+  textAlign: 'center',
+  marginBottom: '2.5rem',
+};
+
+const formTitleStyle = {
+  fontSize: '2rem',
+  fontWeight: '700',
+  color: '#C30E59',
+  marginBottom: '0.5rem',
+  marginTop: '0',
+};
+
+const formSubtitleStyle = {
+  fontSize: '1rem',
+  color: '#666',
+  margin: '0',
+};
+
+const modernFormStyle = {
+  display: 'flex',
+  flexDirection: 'column',
+  gap: '1.5rem',
+};
+
+const formRowStyle = {
+  display: 'grid',
+  gridTemplateColumns: '1fr 1fr',
+  gap: '1rem',
+  '@media (max-width: 640px)': {
+    gridTemplateColumns: '1fr',
+  }
+};
+
+const modernInputStyle = {
+  padding: '1rem 1.5rem',
+  borderRadius: '12px',
+  border: '2px solid #e0e0e0',
+  fontSize: '1rem',
+  outline: 'none',
+  transition: 'all 0.3s ease',
+  background: '#fafafa',
+  ':focus': {
+    borderColor: '#C30E59',
+    background: 'white',
+    boxShadow: '0 0 0 3px rgba(199, 14, 89, 0.1)',
+  }
+};
+
+const modernSelectStyle = {
+  ...modernInputStyle,
+  cursor: 'pointer',
+};
+
+const modernTextareaStyle = {
+  ...modernInputStyle,
+  resize: 'vertical',
+  minHeight: '120px',
+  fontFamily: 'inherit',
+};
+
+const modernSubmitButton = {
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  gap: '0.5rem',
+  padding: '1.2rem 2rem',
+  background: 'linear-gradient(45deg, #C30E59, #E91E63)',
+  color: 'white',
+  border: 'none',
+  borderRadius: '12px',
+  fontSize: '1.1rem',
+  fontWeight: '700',
+  cursor: 'pointer',
+  transition: 'all 0.3s ease',
+  boxShadow: '0 8px 25px rgba(199, 14, 89, 0.3)',
+  ':hover': {
+    transform: 'translateY(-2px)',
+    boxShadow: '0 12px 30px rgba(199, 14, 89, 0.4)',
+  }
+};
+
+const modernSuccessStyle = {
+  display: 'flex',
+  alignItems: 'center',
+  gap: '0.5rem',
   padding: '1rem',
-  background: '#C30E59',
-  color: '#fff',
+  background: 'linear-gradient(45deg, #4CAF50, #66BB6A)',
+  color: 'white',
+  borderRadius: '12px',
   fontSize: '1rem',
   fontWeight: '600',
-  border: 'none',
-  borderRadius: '8px',
-  cursor: 'pointer',
-  transition: '0.3s',
 };
 
-const submitIconStyle = { marginRight: '0.5rem' };
+const modernErrorStyle = {
+  display: 'flex',
+  alignItems: 'center',
+  gap: '0.5rem',
+  padding: '1rem',
+  background: 'linear-gradient(45deg, #f44336, #ef5350)',
+  color: 'white',
+  borderRadius: '12px',
+  fontSize: '1rem',
+  fontWeight: '600',
+};
 
-const successMessageStyle = { color: 'green', textAlign: 'center', fontSize: '0.9rem' };
-const errorMessageStyle = { color: 'red', textAlign: 'center', fontSize: '0.9rem' };
-
-  
-  const mapContainerStyle = {
-    marginTop: '4rem',
-    borderRadius: '10px',
-    overflow: 'hidden',
-    boxShadow: '0 5px 15px rgba(0, 0, 0, 0.1)',
-  };
-  
-  const mapStyle = {
-    width: '100%',
-    height: '400px',
-    border: 'none',
-  };
-
-  const popupOverlayStyle = {
-    position: 'fixed',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundColor: 'rgba(0, 0, 0, 0.7)',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    zIndex: 1001,
-    padding: '20px',
-  };
-  
-  const popupContainerStyle = {
-    backgroundColor: '#fff',
-    borderRadius: '10px',
-    boxShadow: '0 5px 25px rgba(0, 0, 0, 0.3)',
-    maxWidth: '600px',
-    width: '100%',
-    overflow: 'hidden',
-  };
-  
-  const popupHeaderStyle = {
-    backgroundColor: '#1a237e',
-    color: '#fff',
-    padding: '15px 20px',
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  };
-  
-  const popupTitleStyle = {
-    margin: 0,
-    fontSize: '1.2rem',
-  };
-  
-  const popupCloseButtonStyle = {
-    backgroundColor: 'transparent',
-    border: 'none',
-    color: '#fff',
-    fontSize: '1.5rem',
-    cursor: 'pointer',
-    padding: '0 5px',
-  };
-  
-  const popupContentStyle = {
-    padding: '20px',
-    maxHeight: '60vh',
-    overflowY: 'auto',
-  };
-  
-  const popupTextStyle = {
-    marginBottom: '15px',
-    lineHeight: '1.5',
-    color: '#333',
-  };
-  
-  const popupFooterStyle = {
-    padding: '15px 20px',
-    display: 'flex',
-    justifyContent: 'flex-end',
-    borderTop: '1px solid #eee',
-  };
-  
-  const popupAcceptButtonStyle = {
-    backgroundColor: '#1a237e',
-    color: '#fff',
-    border: 'none',
-    borderRadius: '5px',
-    padding: '8px 20px',
-    cursor: 'pointer',
-    fontSize: '1rem',
-    transition: 'all 0.3s ease',
-    ':hover': {
-      backgroundColor: '#3949AB',
-    }
-  };
-  
 export default Home;

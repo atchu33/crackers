@@ -150,6 +150,7 @@ const footerStyle = {
   backgroundColor: '#C30E59',
   color: 'white',
   fontFamily: "'Poppins', sans-serif",
+  borderTop: '3px solid #fff'
 };
 
 const footerContainerStyle = {
