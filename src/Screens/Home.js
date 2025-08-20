@@ -28,31 +28,28 @@ function Home() {
   const [isVisible, setIsVisible] = useState(false);
   const [isRenderPopup, setIsRenderPopup] = useState(false);
 
-  useEffect(() => {
-    const hasSeenPopup = localStorage.getItem('hasSeenPopup');
-    if (!hasSeenPopup) {
-      setShowPopup(true);
-    }
-  }, []);
+useEffect(() => {
+  setShowPopup(true); // Always show on page load
+}, []);
 
-  useEffect(() => {
-    if (showPopup) {
-      setIsRenderPopup(true);
-      setTimeout(() => setIsVisible(true), 10);
-    } else {
-      setIsVisible(false);
-      const timer = setTimeout(() => setIsRenderPopup(false), 300);
-      return () => clearTimeout(timer);
-    }
-  }, [showPopup]);
-
-  const handleClose = () => {
+useEffect(() => {
+  if (showPopup) {
+    setIsRenderPopup(true);
+    setTimeout(() => setIsVisible(true), 10);
+  } else {
     setIsVisible(false);
-    setTimeout(() => {
-      setShowPopup(false);
-      localStorage.setItem('hasSeenPopup', 'true');
-    }, 300);
-  };
+    const timer = setTimeout(() => setIsRenderPopup(false), 300);
+    return () => clearTimeout(timer);
+  }
+}, [showPopup]);
+
+const handleClose = () => {
+  setIsVisible(false);
+  setTimeout(() => {
+    setShowPopup(false);
+    // Removed localStorage to allow popup on next refresh
+  }, 300);
+};
 
   const [formData, setFormData] = useState({
     name: '',
@@ -877,6 +874,151 @@ function Home() {
       `}</style>
 
       <Header />
+
+      {/* 🔥 POPUP MODAL - Insert Here */}
+{isRenderPopup && (
+  <div style={{
+    position: 'fixed',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(0,0,0,0.7)',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    zIndex: 1000,
+    opacity: isVisible ? 1 : 0,
+    transition: 'opacity 0.3s ease',
+    pointerEvents: isVisible ? 'auto' : 'none',
+  }}>
+    <div style={{
+      backgroundColor: '#fff',
+      borderRadius: '12px',
+      width: '90%',
+      maxWidth: '600px',
+      overflow: 'hidden',
+      boxShadow: '0 10px 25px rgba(0,0,0,0.2)',
+      transform: isVisible ? 'scale(1)' : 'scale(0.95)',
+      transition: 'transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)',
+    }}>
+      {/* Popup Content */}
+      <div style={{
+        backgroundColor: '#C30E59',
+        color: 'white',
+        padding: '20px',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
+          <div style={{
+            background: 'rgba(255,255,255,0.3)',
+            borderRadius: '50%',
+            width: '40px',
+            height: '40px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            flexShrink: 0,
+          }}>
+            <FiAlertTriangle size={20} />
+          </div>
+          <h2 style={{ margin: 0, fontSize: '1.25rem', fontWeight: '600' }}>
+            Important
+          </h2>
+        </div>
+        <button 
+          onClick={handleClose}
+          style={{
+            background: 'none',
+            border: 'none',
+            color: 'white',
+            fontSize: '1.5rem',
+            cursor: 'pointer',
+            padding: '5px',
+            transition: 'transform 0.2s ease',
+          }}
+          onMouseEnter={(e) => e.target.style.transform = 'rotate(90deg)'}
+          onMouseLeave={(e) => e.target.style.transform = 'rotate(0deg)'}
+        >
+          <FiX />
+        </button>
+      </div>
+
+      <div style={{ 
+        padding: '25px',
+        maxHeight: '60vh', 
+        overflowY: 'auto',
+      }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+          <p style={{ margin: 0, color: '#333', lineHeight: '1.6' }}>
+            As per 2018 Supreme Court Order, online sale of firecrackers is NOT permitted. 
+            We value our customers and at the same time, we respect the jurisdiction.
+          </p>
+          
+          <p style={{ margin: 0, color: '#333', lineHeight: '1.6' }}>
+            We request our customers to:
+          </p>
+          
+          <ul style={{ margin: 0, paddingLeft: '20px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+            <li>Select your products in the Estimate Page to see your estimation</li>
+            <li>Submit the required crackers through the Get Estimate Button</li>
+          </ul>
+          
+          <p style={{ margin: 0, color: '#333', lineHeight: '1.6' }}>
+            We will contact you within 2 hours and confirm the order through phone call. 
+            Please add and submit your enquiries and enjoy your Diwali with SRI GOKILAA CRACKERS.
+          </p>
+          
+          <p style={{ margin: 0, color: '#333', lineHeight: '1.6' }}>
+            SRI GOKILAA CRACKERS is a shop following 100% legal & statutory compliances and 
+            all our shops, go-downs are maintained as per the explosive acts. We send 
+            the parcels through registered and legal transport service providers as like 
+            every other major companies in Sivakasi is doing so.
+          </p>
+        </div>
+      </div>
+
+      <div style={{
+        padding: '20px',
+        textAlign: 'center',
+        borderTop: '1px solid #f0f0f0',
+        background: '#f9f9f9',
+      }}>
+        <button
+          onClick={handleClose}
+          style={{
+            background: 'linear-gradient(to right, #ff5e62, #ff9966)',
+            color: 'white',
+            border: 'none',
+            borderRadius: '30px',
+            padding: '12px 30px',
+            fontSize: '1rem',
+            fontWeight: '600',
+            cursor: 'pointer',
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '8px',
+            boxShadow: '0 4px 15px rgba(255, 94, 98, 0.3)',
+            transition: 'all 0.3s ease',
+          }}
+          onMouseEnter={(e) => {
+            e.target.style.transform = 'translateY(-2px)';
+            e.target.style.boxShadow = '0 6px 20px rgba(255, 94, 98, 0.4)';
+          }}
+          onMouseLeave={(e) => {
+            e.target.style.transform = 'translateY(0)';
+            e.target.style.boxShadow = '0 4px 15px rgba(255, 94, 98, 0.3)';
+          }}
+        >
+          <FiCheck /> I Understand
+        </button>
+      </div>
+    </div>
+  </div>
+)}
+
 
       {/* Main Hero Section (Original Style) */}
       <section className="main-hero">
